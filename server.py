@@ -12,11 +12,13 @@ import re
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
-    client = MongoClient('mongo')
-    # client = MongoClient('localhost')
+    # client = MongoClient('mongo')
+    client = MongoClient('localhost')
 
     db = client['cse312']
 
+    # When the handle function ends, the TCP connection closes
+    # to keep the function open for websockets, use while True
     def handle(self):
         received_data = self.request.recv(2048)
         request = Request(received_data)
@@ -89,7 +91,7 @@ Set-Cookie: visits={num_visits}; Max-Age=42069\r\n\r\n{num_visits}'.encode())
             response = to_bytes(response) + to_bytes(contents)
             self.request.sendall(response)
             return
-        
+
         path, contents = fetch_file(path, HOME_PATH, request)
         print(path)
         if path == None:
@@ -156,7 +158,7 @@ def fetch_file(path, home_path, request) -> tuple[str, bytes]:
 
 def process_favicon(success_response):
     filename = './public/favicon.ico'
-    response = success_response.format(type='image/x-icon', 
+    response = success_response.format(type='image/x-icon',
                                        len=num_bytes(filename))
     content = ''
     with open(filename, 'rb') as fi:
